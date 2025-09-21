@@ -3,11 +3,8 @@ import React from 'react';
 import { Home, ChefHat, MapPin, Film, Gamepad2 } from 'lucide-react-native';
 
 import { HapticTab } from '@/components/haptic-tab';
-import { Colors } from '@/constants/theme';
-import { useColorScheme } from '@/hooks/use-color-scheme';
 
 export default function TabLayout() {
-  const colorScheme = useColorScheme();
 
   return (
     <Tabs

@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, History, Gamepad2, ChevronDown, ChevronUp } from 'lucide-react-native';
-import { router } from 'expo-router';
+import { ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react-native';
 import DiceRoller from '@/components/Dice/DiceRoller';
-import { Fonts } from '@/constants/fonts';
 import { useTheme } from '@/contexts/ThemeContext';
+import { router } from 'expo-router';
 import { allGameOptions, timeFilterOptions, playerFilterOptions } from '@/data/games';
 
 export default function GamesScreen() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
 
   const timeFilters = timeFilterOptions;
   const playerFilters = playerFilterOptions;
@@ -33,10 +32,6 @@ export default function GamesScreen() {
     );
   };
 
-  const handleSettingsPress = () => {
-    router.push('/settings' as any);
-  };
-
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <SafeAreaView style={{ flex: 1 }}>
@@ -53,48 +48,25 @@ export default function GamesScreen() {
             elevation: 2
           }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <View style={{
-                  width: 40,
-                  height: 40,
-                  backgroundColor: colors.background,
-                  borderRadius: 16,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Gamepad2 size={20} color={colors.primary} />
-                </View>
-                <View>
-                  <Text style={{ fontSize: 24, fontFamily: Fonts.bold, color: colors.text }}>Games</Text>
-                  <Text style={{ fontSize: 14, fontFamily: Fonts.regular, color: colors.textSecondary }}>What should I play?</Text>
-                </View>
-              </View>
-              
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                <TouchableOpacity style={{
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={{
                   width: 40,
                   height: 40,
                   backgroundColor: colors.background,
                   borderRadius: 12,
                   alignItems: 'center',
                   justifyContent: 'center'
-                }}>
-                  <History size={18} color={colors.textSecondary} />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={{
-                    width: 40,
-                    height: 40,
-                    backgroundColor: colors.background,
-                    borderRadius: 12,
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  onPress={handleSettingsPress}
-                >
-                  <Settings size={18} color={colors.textSecondary} />
-                </TouchableOpacity>
+                }}
+              >
+                <ArrowLeft size={18} color={colors.textSecondary} />
+              </TouchableOpacity>
+              
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Text style={{ fontSize: 24, fontFamily: fonts.bold, color: colors.text }}>Games</Text>
+                <Text style={{ fontSize: 14, fontFamily: fonts.regular, color: colors.textSecondary }}>What should I play?</Text>
               </View>
+              
             </View>
           </View>
 
@@ -131,7 +103,7 @@ export default function GamesScreen() {
               >
                 <Text style={{
                   fontSize: 18,
-                  fontFamily: Fonts.semiBold,
+                  fontFamily: fonts.semiBold,
                   color: colors.text
                 }}>
                   Filters
@@ -150,7 +122,7 @@ export default function GamesScreen() {
                   <View>
                     <Text style={{
                       fontSize: 14,
-                      fontFamily: Fonts.medium,
+                      fontFamily: fonts.medium,
                       color: colors.text,
                       marginBottom: 8
                     }}>
@@ -172,7 +144,7 @@ export default function GamesScreen() {
                         >
                           <Text style={{
                             textAlign: 'center',
-                            fontFamily: Fonts.semiBold,
+                            fontFamily: fonts.semiBold,
                             fontSize: 12,
                             color: selectedFilters.includes(time) ? 'white' : colors.text
                           }}>
@@ -187,7 +159,7 @@ export default function GamesScreen() {
                   <View>
                     <Text style={{
                       fontSize: 14,
-                      fontFamily: Fonts.medium,
+                      fontFamily: fonts.medium,
                       color: colors.text,
                       marginBottom: 8
                     }}>
@@ -208,7 +180,7 @@ export default function GamesScreen() {
                           onPress={() => toggleFilter(players)}
                         >
                           <Text style={{
-                            fontFamily: Fonts.medium,
+                            fontFamily: fonts.medium,
                             color: selectedFilters.includes(players) ? 'white' : colors.text
                           }}>
                             {players}

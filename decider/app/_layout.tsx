@@ -6,11 +6,10 @@ import 'react-native-reanimated';
 // Import global CSS for NativeWind
 import '../global.css';
 
-import { useColorScheme } from '@/hooks/use-color-scheme';
 import { useFonts, Poppins_400Regular, Poppins_500Medium, Poppins_600SemiBold, Poppins_700Bold } from '@expo-google-fonts/poppins';
 import * as SplashScreen from 'expo-splash-screen';
 import { useEffect } from 'react';
-import { ThemeProvider } from '@/contexts/ThemeContext';
+import { ThemeProvider, useTheme } from '@/contexts/ThemeContext';
 
 // Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
@@ -19,8 +18,8 @@ export const unstable_settings = {
   anchor: '(tabs)', // Changed back to (tabs) since index is now the default
 };
 
-export default function RootLayout() {
-  const colorScheme = useColorScheme();
+function AppContent() {
+  const { isDarkMode } = useTheme();
   
   const [fontsLoaded] = useFonts({
     Poppins_400Regular,
@@ -40,16 +39,22 @@ export default function RootLayout() {
   }
 
   return (
+    <NavigationThemeProvider value={isDarkMode ? DarkTheme : DefaultTheme}>
+      <Stack>
+        <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
+        <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
+        <Stack.Screen name="categories" options={{ headerShown: false }} />
+        <Stack.Screen name="settings" options={{ headerShown: false }} />
+      </Stack>
+      <StatusBar style="auto" />
+    </NavigationThemeProvider>
+  );
+}
+
+export default function RootLayout() {
+  return (
     <ThemeProvider>
-      <NavigationThemeProvider value={colorScheme === 'dark' ? DarkTheme : DefaultTheme}>
-        <Stack>
-          <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
-          <Stack.Screen name="modal" options={{ presentation: 'modal', title: 'Modal' }} />
-          <Stack.Screen name="categories" options={{ headerShown: false }} />
-          <Stack.Screen name="settings" options={{ headerShown: false }} />
-        </Stack>
-        <StatusBar style="auto" />
-      </NavigationThemeProvider>
+      <AppContent />
     </ThemeProvider>
   );
 }

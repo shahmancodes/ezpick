@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, History, MapPin, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
+
 import DiceRoller from '@/components/Dice/DiceRoller';
-import { Fonts } from '@/constants/fonts';
 import { useTheme } from '@/contexts/ThemeContext';
 import { allPlaceOptions, distanceFilterOptions, activityFilterOptions } from '@/data/places';
 
 export default function PlacesScreen() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
 
   const distanceFilters = distanceFilterOptions;
   const activityFilters = activityFilterOptions;
@@ -33,10 +33,6 @@ export default function PlacesScreen() {
     );
   };
 
-  const handleSettingsPress = () => {
-    router.push('/settings' as any);
-  };
-
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <SafeAreaView style={{ flex: 1 }}>
@@ -53,48 +49,25 @@ export default function PlacesScreen() {
             elevation: 2
           }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <View style={{
-                  width: 40,
-                  height: 40,
-                  backgroundColor: colors.background,
-                  borderRadius: 16,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <MapPin size={20} color={colors.primary} />
-                </View>
-                <View>
-                  <Text style={{ fontSize: 24, fontFamily: Fonts.bold, color: colors.text }}>Places</Text>
-                  <Text style={{ fontSize: 14, fontFamily: Fonts.regular, color: colors.textSecondary }}>Where should I go?</Text>
-                </View>
-              </View>
-              
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                <TouchableOpacity style={{
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={{
                   width: 40,
                   height: 40,
                   backgroundColor: colors.background,
                   borderRadius: 12,
                   alignItems: 'center',
                   justifyContent: 'center'
-                }}>
-                  <History size={18} color={colors.textSecondary} />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={{
-                    width: 40,
-                    height: 40,
-                    backgroundColor: colors.background,
-                    borderRadius: 12,
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  onPress={handleSettingsPress}
-                >
-                  <Settings size={18} color={colors.textSecondary} />
-                </TouchableOpacity>
+                }}
+              >
+                <ArrowLeft size={18} color={colors.textSecondary} />
+              </TouchableOpacity>
+              
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Text style={{ fontSize: 24, fontFamily: fonts.bold, color: colors.text }}>Places</Text>
+                <Text style={{ fontSize: 14, fontFamily: fonts.regular, color: colors.textSecondary }}>Where should I go?</Text>
               </View>
+              
             </View>
           </View>
 
@@ -131,7 +104,7 @@ export default function PlacesScreen() {
               >
                 <Text style={{
                   fontSize: 18,
-                  fontFamily: Fonts.semiBold,
+                  fontFamily: fonts.semiBold,
                   color: colors.text
                 }}>
                   Filters
@@ -150,7 +123,7 @@ export default function PlacesScreen() {
                   <View>
                     <Text style={{
                       fontSize: 14,
-                      fontFamily: Fonts.medium,
+                      fontFamily: fonts.medium,
                       color: colors.text,
                       marginBottom: 8
                     }}>
@@ -172,7 +145,7 @@ export default function PlacesScreen() {
                         >
                           <Text style={{
                             textAlign: 'center',
-                            fontFamily: Fonts.semiBold,
+                            fontFamily: fonts.semiBold,
                             fontSize: 12,
                             color: selectedFilters.includes(distance) ? 'white' : colors.text
                           }}>
@@ -187,7 +160,7 @@ export default function PlacesScreen() {
                   <View>
                     <Text style={{
                       fontSize: 14,
-                      fontFamily: Fonts.medium,
+                      fontFamily: fonts.medium,
                       color: colors.text,
                       marginBottom: 8
                     }}>
@@ -208,7 +181,7 @@ export default function PlacesScreen() {
                           onPress={() => toggleFilter(activity)}
                         >
                           <Text style={{
-                            fontFamily: Fonts.medium,
+                            fontFamily: fonts.medium,
                             color: selectedFilters.includes(activity) ? 'white' : colors.text
                           }}>
                             {activity}

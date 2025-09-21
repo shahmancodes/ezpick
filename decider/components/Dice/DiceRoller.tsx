@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
-import { useSharedValue, withTiming, withSequence, withSpring, useAnimatedStyle, withRepeat, interpolate } from 'react-native-reanimated';
+import { useSharedValue, withTiming, withSequence, withSpring, useAnimatedStyle } from 'react-native-reanimated';
 import Animated from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { useAudioPlayer } from 'expo-audio'; // Correct import
+import { useAudioPlayer } from 'expo-audio';
 import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Sparkles } from 'lucide-react-native';
+import { useTheme } from '@/contexts/ThemeContext';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 interface DiceRollerProps {
   options: string[];
@@ -14,64 +16,51 @@ interface DiceRollerProps {
 
 const diceFaces = [Dice1, Dice2, Dice3, Dice4, Dice5, Dice6];
 
-// Default dice colors (fallback if theme context isn't available)
-const defaultDiceColor = {
-  id: 'blue',
-  name: 'Ocean Blue',
-  primary: '#0ea5e9',
-  secondary: '#38bdf8',
-  shadow: '#0ea5e9',
-};
-
-const defaultColors = {
-  background: '#f8fafc',
-  surface: '#ffffff',
-  text: '#0f172a',
-  textSecondary: '#64748b',
-  border: '#e2e8f0',
-  primary: '#0ea5e9',
-  shadow: '#000000',
-};
-
-export default function DiceRoller({ options, onResult, disabled = false }: DiceRollerProps) {
+export default function DiceRoller({ options = [], onResult, disabled = false }: DiceRollerProps) {
   const [isRolling, setIsRolling] = useState(false);
   const [currentFace, setCurrentFace] = useState(0);
   const [lastResult, setLastResult] = useState<string | null>(null);
+  const [isAudioEnabled, setIsAudioEnabled] = useState(true);
   
-  // Try to get theme context, fallback to defaults if not available
-  let selectedDiceColor = defaultDiceColor;
-  let colors = defaultColors;
-  
-  try {
-    // Only import and use theme if available
-    const { useTheme } = require('@/contexts/ThemeContext');
-    const themeContext = useTheme();
-    if (themeContext) {
-      selectedDiceColor = themeContext.selectedDiceColor || defaultDiceColor;
-      colors = themeContext.colors || defaultColors;
-    }
-  } catch (error) {
-    // Theme context not available, use defaults
-    console.log('Theme context not available, using defaults');
-  }
+  // Use unified theme context
+  const { colors, fonts } = useTheme();
   
   const rotation = useSharedValue(0);
-  const scale = useSharedValue(1);
-  const opacity = useSharedValue(1);
-  const bounce = useSharedValue(0);
-  const glow = useSharedValue(0);
 
-  // Create audio player
+  // Move useAudioPlayer to top level - hooks must be called at component level
   const player = useAudioPlayer();
 
-  // Load and play dice roll sound
-  const playDiceRollSound = async () => {
+  useEffect(() => {
+    loadAudioSetting();
+  }, []);
+
+  const loadAudioSetting = async () => {
     try {
-      // Set the audio source and play
-      await player.replace(require('@/assets/sounds/dice-roll.wav'));
-      player.play();
+      const savedSetting = await AsyncStorage.getItem('audioEnabled');
+      if (savedSetting !== null) {
+        setIsAudioEnabled(JSON.parse(savedSetting));
+      }
     } catch (error) {
-      console.log('Error playing dice roll sound:', error);
+      console.log('Error loading audio setting:', error);
+    }
+  };
+
+  const playDiceRollSound = async () => {
+    if (!isAudioEnabled) {
+      console.log('Audio is muted, skipping sound');
+      return;
+    }
+    try {
+      // Check if player is ready before trying to play
+      if (player && typeof player.replace === 'function') {
+        await player.replace(require('@/assets/sounds/dice-roll.wav'));
+        if (typeof player.play === 'function') {
+          player.play();
+        }
+      }
+    } catch (error: any) {
+      // Silently fail for audio errors - they're not critical
+      console.log('Audio playback not available:', error.message);
     }
   };
 
@@ -80,32 +69,25 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
     return {
       transform: [
         { rotate: `${rotation.value}deg` },
-        { scale: scale.value },
-        { translateY: bounce.value }
       ],
-    };
-  });
-
-  const glowAnimatedStyle = useAnimatedStyle(() => {
-    const glowOpacity = interpolate(glow.value, [0, 1], [0, 0.6]);
-    return {
-      opacity: glowOpacity,
-      transform: [{ scale: interpolate(glow.value, [0, 1], [1, 1.3]) }]
     };
   });
 
   const resultAnimatedStyle = useAnimatedStyle(() => {
     return {
-      opacity: opacity.value,
-      transform: [{ scale: scale.value }]
+      opacity: 1,
     };
   });
 
   const rollDice = async () => {
-    if (isRolling || disabled || options.length === 0) return;
+    // Add safety check for options
+    if (isRolling || disabled || !options || options.length === 0) return;
 
     setIsRolling(true);
     setLastResult(null);
+    
+    // Reset rotation to 0 before starting new animation
+    rotation.value = 0;
     
     // Initial haptic feedback
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -113,39 +95,20 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
     // Play dice roll sound
     playDiceRollSound();
 
-    // Enhanced animation sequence
+    // Just rotation animation
     rotation.value = withSequence(
-      withTiming(360 * 6, { duration: 1600 }),
-      withSpring(360 * 6 + 15, { damping: 10, stiffness: 100 })
+      withTiming(360 * 4, { duration: 1200 }),
+      withSpring(360 * 4 + 15, { damping: 12, stiffness: 120 })
     );
-
-    scale.value = withSequence(
-      withSpring(1.3, { damping: 8, stiffness: 150 }),
-      withSpring(0.8, { damping: 8, stiffness: 150 }),
-      withSpring(1.2, { damping: 8, stiffness: 150 }),
-      withSpring(1, { damping: 8, stiffness: 150 })
-    );
-
-    // Bounce effect
-    bounce.value = withSequence(
-      withRepeat(withTiming(-10, { duration: 100 }), 8, true),
-      withSpring(0, { damping: 8, stiffness: 150 })
-    );
-
-    // Glow effect
-    glow.value = withRepeat(withTiming(1, { duration: 200 }), 8, true);
 
     // Dice face animation
     const faceInterval = setInterval(() => {
       setCurrentFace(Math.floor(Math.random() * 6));
-    }, 50);
+    }, 80);
 
     // Complete animation
     setTimeout(async () => {
       clearInterval(faceInterval);
-      
-      // Stop glow
-      glow.value = withTiming(0, { duration: 300 });
       
       const randomIndex = Math.floor(Math.random() * options.length);
       const result = options[randomIndex];
@@ -157,38 +120,22 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       
       onResult(result);
-    }, 1700);
+    }, 1300);
   };
 
   const CurrentDiceIcon = diceFaces[currentFace];
 
   return (
     <View style={{ alignItems: 'center', gap: 24 }}>
-      {/* Dice Button with Glow Effect */}
+      {/* Dice Button */}
       <TouchableOpacity
         onPress={rollDice}
-        disabled={isRolling || disabled}
+        disabled={isRolling || disabled || !options || options.length === 0}
         style={{ 
           position: 'relative',
-          opacity: disabled ? 0.4 : 1
+          opacity: disabled || !options || options.length === 0 ? 0.4 : 1
         }}
       >
-        {/* Glow Background */}
-        <Animated.View
-          style={[
-            {
-              position: 'absolute',
-              width: 120,
-              height: 120,
-              borderRadius: 25,
-              backgroundColor: selectedDiceColor.primary,
-              top: -10,
-              left: -10,
-            },
-            glowAnimatedStyle
-          ]}
-        />
-        
         {/* Main Dice */}
         <Animated.View
           style={[
@@ -198,8 +145,10 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
               borderRadius: 20,
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: isRolling ? selectedDiceColor.secondary : selectedDiceColor.primary,
-              shadowColor: selectedDiceColor.shadow,
+              backgroundColor: isRolling ? colors.primary + '80' : colors.primary,
+              borderWidth: 2,
+              borderColor: 'white',
+              shadowColor: colors.shadow,
               shadowOffset: { width: 0, height: 8 },
               shadowOpacity: 0.5,
               shadowRadius: 20,
@@ -216,21 +165,11 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
       <View style={{ alignItems: 'center', gap: 8 }}>
         <Text style={{
           fontSize: 22,
-          fontWeight: '600', // Using fontWeight instead of fontFamily for now
-          color: isRolling ? selectedDiceColor.primary : colors.text
+          fontFamily: fonts.semiBold,
+          color: isRolling ? colors.primary : colors.text
         }}>
           {isRolling ? 'Rolling...' : 'Tap to Roll'}
         </Text>
-        
-        {options.length > 0 && !isRolling && (
-          <Text style={{
-            fontSize: 14,
-            color: colors.textSecondary,
-            textAlign: 'center'
-          }}>
-            {options.length} option{options.length !== 1 ? 's' : ''} available
-          </Text>
-        )}
       </View>
 
       {/* Enhanced Result Display */}
@@ -239,22 +178,23 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
           style={[
             {
               width: '100%',
-              maxWidth: 320,
+              maxWidth: 300,
+              marginTop: 16,
             },
             resultAnimatedStyle
           ]}
         >
           <View style={{
-            backgroundColor: '#f0fdf4',
-            borderColor: '#bbf7d0',
+            backgroundColor: colors.surface,
+            borderColor: colors.primary,
             borderWidth: 2,
-            borderRadius: 20,
-            padding: 28,
-            shadowColor: '#22c55e',
-            shadowOffset: { width: 0, height: 6 },
-            shadowOpacity: 0.15,
-            shadowRadius: 16,
-            elevation: 6
+            borderRadius: 16,
+            padding: 20,
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 4 },
+            shadowOpacity: 0.1,
+            shadowRadius: 12,
+            elevation: 4
           }}>
             <View style={{
               flexDirection: 'row',
@@ -263,26 +203,26 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
               gap: 8,
               marginBottom: 12
             }}>
-              <Sparkles size={24} color="#16a34a" />
+              <Sparkles size={20} color={colors.primary} />
               <Text style={{
-                color: '#15803d',
-                fontWeight: '600',
-                fontSize: 16,
+                color: colors.primary,
+                fontFamily: fonts.semiBold,
+                fontSize: 14,
                 textTransform: 'uppercase',
-                letterSpacing: 1.5
+                letterSpacing: 1
               }}>
                 Selected
               </Text>
-              <Sparkles size={24} color="#16a34a" />
+              <Sparkles size={20} color={colors.primary} />
             </View>
             
             <Text style={{
               textAlign: 'center',
-              color: '#166534',
-              fontWeight: 'bold',
-              fontSize: 28,
-              marginBottom: 8,
-              lineHeight: 34
+              color: colors.text,
+              fontFamily: fonts.bold,
+              fontSize: 24,
+              marginBottom: 16,
+              lineHeight: 28
             }}>
               {lastResult}
             </Text>
@@ -290,17 +230,16 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
             <TouchableOpacity
               onPress={rollDice}
               style={{
-                marginTop: 16,
-                backgroundColor: selectedDiceColor.primary,
-                borderRadius: 16,
+                backgroundColor: colors.primary,
+                borderRadius: 12,
                 paddingVertical: 12,
-                paddingHorizontal: 24
+                paddingHorizontal: 20
               }}
             >
               <Text style={{
                 textAlign: 'center',
                 color: 'white',
-                fontWeight: '600',
+                fontFamily: fonts.semiBold,
                 fontSize: 16
               }}>
                 Roll Again
@@ -311,10 +250,10 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
       )}
 
       {/* Empty State */}
-      {options.length === 0 && (
+      {(!options || options.length === 0) && (
         <View style={{
-          backgroundColor: '#fffbeb',
-          borderColor: '#fde68a',
+          backgroundColor: colors.warning + '20',
+          borderColor: colors.warning,
           borderWidth: 1,
           borderRadius: 16,
           padding: 16,
@@ -322,8 +261,8 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
         }}>
           <Text style={{
             textAlign: 'center',
-            color: '#d97706',
-            fontWeight: '500',
+            color: colors.warning,
+            fontFamily: fonts.medium,
             fontSize: 14
           }}>
             No options available. Please adjust your filters.

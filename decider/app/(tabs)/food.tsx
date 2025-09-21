@@ -1,17 +1,16 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, History, ChefHat, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react-native';
+import { ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
 import DiceRoller from '@/components/Dice/DiceRoller';
-import { Fonts } from '@/constants/fonts';
 import { useTheme } from '@/contexts/ThemeContext';
 import { allFoodOptions, priceFilterOptions, cuisineFilterOptions } from '@/data/food';
 
 export default function FoodScreen() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
 
   const priceFilters = priceFilterOptions;
   const cuisineFilters = cuisineFilterOptions;
@@ -30,10 +29,6 @@ export default function FoodScreen() {
         ? prev.filter(f => f !== filter)
         : [...prev, filter]
     );
-  };
-
-  const handleSettingsPress = () => {
-    router.push('/settings' as any);
   };
 
   return (
@@ -67,35 +62,10 @@ export default function FoodScreen() {
               </TouchableOpacity>
               
               <View style={{ flex: 1, alignItems: 'center' }}>
-                <Text style={{ fontSize: 24, fontFamily: Fonts.bold, color: colors.text }}>Food</Text>
-                <Text style={{ fontSize: 14, fontFamily: Fonts.regular, color: colors.textSecondary }}>What should I eat?</Text>
+                <Text style={{ fontSize: 24, fontFamily: fonts.bold, color: colors.text }}>Food</Text>
+                <Text style={{ fontSize: 14, fontFamily: fonts.regular, color: colors.textSecondary }}>What should I eat?</Text>
               </View>
               
-              <View style={{ flexDirection: 'row', gap: 8 }}>
-                <TouchableOpacity style={{
-                  width: 40,
-                  height: 40,
-                  backgroundColor: colors.background,
-                  borderRadius: 12,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <History size={18} color={colors.textSecondary} />
-                </TouchableOpacity>
-                <TouchableOpacity 
-                  style={{
-                    width: 40,
-                    height: 40,
-                    backgroundColor: colors.background,
-                    borderRadius: 12,
-                    alignItems: 'center',
-                    justifyContent: 'center'
-                  }}
-                  onPress={handleSettingsPress}
-                >
-                  <Settings size={18} color={colors.textSecondary} />
-                </TouchableOpacity>
-              </View>
             </View>
           </View>
 
@@ -132,7 +102,7 @@ export default function FoodScreen() {
               >
                 <Text style={{
                   fontSize: 18,
-                  fontFamily: Fonts.semiBold,
+                  fontFamily: fonts.semiBold,
                   color: colors.text
                 }}>
                   Filters
@@ -151,7 +121,7 @@ export default function FoodScreen() {
                   <View>
                     <Text style={{
                       fontSize: 14,
-                      fontFamily: Fonts.medium,
+                      fontFamily: fonts.medium,
                       color: colors.text,
                       marginBottom: 8
                     }}>
@@ -173,7 +143,7 @@ export default function FoodScreen() {
                         >
                           <Text style={{
                             textAlign: 'center',
-                            fontFamily: Fonts.semiBold,
+                            fontFamily: fonts.semiBold,
                             fontSize: 16,
                             color: selectedFilters.includes(price) ? 'white' : colors.text
                           }}>
@@ -188,7 +158,7 @@ export default function FoodScreen() {
                   <View>
                     <Text style={{
                       fontSize: 14,
-                      fontFamily: Fonts.medium,
+                      fontFamily: fonts.medium,
                       color: colors.text,
                       marginBottom: 8
                     }}>
@@ -209,7 +179,7 @@ export default function FoodScreen() {
                           onPress={() => toggleFilter(cuisine)}
                         >
                           <Text style={{
-                            fontFamily: Fonts.medium,
+                            fontFamily: fonts.medium,
                             color: selectedFilters.includes(cuisine) ? 'white' : colors.text
                           }}>
                             {cuisine}

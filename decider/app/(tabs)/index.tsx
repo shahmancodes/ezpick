@@ -1,13 +1,20 @@
 import React from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { Dice1, Settings } from 'lucide-react-native';
-import { Fonts } from '@/constants/fonts';
+import { Dice6, Settings } from 'lucide-react-native';
 import { useTheme } from '@/contexts/ThemeContext';
 
+// Get the appropriate top value
+const getTopValue = () => {
+  if (Platform.OS === 'ios') {
+    return 50; // iPhone X and newer
+  }
+  return 20; // Android and older iPhones
+};
+
 export default function LandingScreen() {
-  const { colors } = useTheme();
+  const { colors, fonts } = useTheme();
 
   const handleLetsGo = () => {
     router.push('/categories' as any);
@@ -19,11 +26,11 @@ export default function LandingScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
-      <SafeAreaView style={{ flex: 1 }}>
+      <SafeAreaView style={{ flex: 1, backgroundColor: colors.background }} edges={['top']}>
         {/* Settings Button - Top Right */}
         <View style={{
           position: 'absolute',
-          top: 16,
+          top: getTopValue(), // Dynamic positioning
           right: 24,
           zIndex: 1
         }}>
@@ -53,28 +60,29 @@ export default function LandingScreen() {
           alignItems: 'center',
           paddingHorizontal: 24
         }}>
+          {/* Dice showing 6 - Similar to DiceRoller */}
           <View style={{
             width: 100,
             height: 100,
-            backgroundColor: colors.background,
-            borderRadius: 50,
+            borderRadius: 20,
             alignItems: 'center',
             justifyContent: 'center',
-            marginBottom: 32,
-            shadowColor: colors.primary,
-            shadowOffset: { width: 0, height: 8 },
-            shadowOpacity: 0.2,
-            shadowRadius: 16,
-            elevation: 8,
+            backgroundColor: colors.primary,
             borderWidth: 2,
-            borderColor: colors.primary
+            borderColor: 'white',
+            shadowColor: colors.shadow,
+            shadowOffset: { width: 0, height: 8 },
+            shadowOpacity: 0.5,
+            shadowRadius: 20,
+            elevation: 12,
+            marginBottom: 32
           }}>
-            <Dice1 size={40} color={colors.primary} />
+            <Dice6 size={50} color="white" strokeWidth={3} />
           </View>
           
           <Text style={{
             fontSize: 32,
-            fontFamily: Fonts.bold,
+            fontFamily: fonts.bold,
             color: colors.text,
             textAlign: 'center',
             marginBottom: 16,
@@ -85,7 +93,7 @@ export default function LandingScreen() {
           
           <Text style={{
             fontSize: 18,
-            fontFamily: Fonts.regular,
+            fontFamily: fonts.regular,
             color: colors.textSecondary,
             textAlign: 'center',
             marginBottom: 48,
@@ -110,7 +118,7 @@ export default function LandingScreen() {
           >
             <Text style={{
               fontSize: 18,
-              fontFamily: Fonts.semiBold,
+              fontFamily: fonts.semiBold,
               color: 'white',
               textAlign: 'center'
             }}>
