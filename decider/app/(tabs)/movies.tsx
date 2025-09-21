@@ -2,12 +2,16 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { Settings, History, Film, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { router } from 'expo-router';
 import DiceRoller from '@/components/Dice/DiceRoller';
+import { Fonts } from '@/constants/fonts';
+import { useTheme } from '@/contexts/ThemeContext';
 import { allMovieOptions, durationFilterOptions, genreFilterOptions } from '@/data/movies';
 
 export default function MoviesScreen() {
   const [selectedFilters, setSelectedFilters] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const { colors } = useTheme();
 
   const durationFilters = durationFilterOptions;
   const genreFilters = genreFilterOptions;
@@ -29,16 +33,20 @@ export default function MoviesScreen() {
     );
   };
 
+  const handleSettingsPress = () => {
+    router.push('/settings' as any);
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={{
             paddingHorizontal: 24,
             paddingVertical: 16,
-            backgroundColor: 'white',
-            shadowColor: '#000',
+            backgroundColor: colors.surface,
+            shadowColor: colors.shadow,
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.06,
             shadowRadius: 8,
@@ -49,16 +57,16 @@ export default function MoviesScreen() {
                 <View style={{
                   width: 40,
                   height: 40,
-                  backgroundColor: '#e0f2fe',
+                  backgroundColor: colors.background,
                   borderRadius: 16,
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <Film size={20} color="#0ea5e9" />
+                  <Film size={20} color={colors.primary} />
                 </View>
                 <View>
-                  <Text style={{ fontSize: 24, fontWeight: 'bold', color: '#0f172a' }}>Movies</Text>
-                  <Text style={{ fontSize: 14, color: '#64748b' }}>What should I watch?</Text>
+                  <Text style={{ fontSize: 24, fontFamily: Fonts.bold, color: colors.text }}>Movies</Text>
+                  <Text style={{ fontSize: 14, fontFamily: Fonts.regular, color: colors.textSecondary }}>What should I watch?</Text>
                 </View>
               </View>
               
@@ -66,22 +74,25 @@ export default function MoviesScreen() {
                 <TouchableOpacity style={{
                   width: 40,
                   height: 40,
-                  backgroundColor: '#f1f5f9',
+                  backgroundColor: colors.background,
                   borderRadius: 12,
                   alignItems: 'center',
                   justifyContent: 'center'
                 }}>
-                  <History size={18} color="#64748b" />
+                  <History size={18} color={colors.textSecondary} />
                 </TouchableOpacity>
-                <TouchableOpacity style={{
-                  width: 40,
-                  height: 40,
-                  backgroundColor: '#f1f5f9',
-                  borderRadius: 12,
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Settings size={18} color="#64748b" />
+                <TouchableOpacity 
+                  style={{
+                    width: 40,
+                    height: 40,
+                    backgroundColor: colors.background,
+                    borderRadius: 12,
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                  }}
+                  onPress={handleSettingsPress}
+                >
+                  <Settings size={18} color={colors.textSecondary} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -99,9 +110,9 @@ export default function MoviesScreen() {
 
             {/* Filters Accordion */}
             <View style={{
-              backgroundColor: 'white',
+              backgroundColor: colors.surface,
               borderRadius: 16,
-              shadowColor: '#000',
+              shadowColor: colors.shadow,
               shadowOffset: { width: 0, height: 2 },
               shadowOpacity: 0.06,
               shadowRadius: 8,
@@ -120,15 +131,15 @@ export default function MoviesScreen() {
               >
                 <Text style={{
                   fontSize: 18,
-                  fontWeight: '600',
-                  color: '#1e293b'
+                  fontFamily: Fonts.semiBold,
+                  color: colors.text
                 }}>
                   Filters
                 </Text>
                 {showFilters ? (
-                  <ChevronUp size={20} color="#64748b" />
+                  <ChevronUp size={20} color={colors.textSecondary} />
                 ) : (
-                  <ChevronDown size={20} color="#64748b" />
+                  <ChevronDown size={20} color={colors.textSecondary} />
                 )}
               </TouchableOpacity>
 
@@ -139,8 +150,8 @@ export default function MoviesScreen() {
                   <View>
                     <Text style={{
                       fontSize: 14,
-                      fontWeight: '500',
-                      color: '#334155',
+                      fontFamily: Fonts.medium,
+                      color: colors.text,
                       marginBottom: 8
                     }}>
                       Duration
@@ -154,16 +165,16 @@ export default function MoviesScreen() {
                             paddingVertical: 12,
                             borderRadius: 12,
                             borderWidth: 2,
-                            backgroundColor: selectedFilters.includes(duration) ? '#0ea5e9' : '#f8fafc',
-                            borderColor: selectedFilters.includes(duration) ? '#0ea5e9' : '#e2e8f0'
+                            backgroundColor: selectedFilters.includes(duration) ? colors.primary : colors.background,
+                            borderColor: selectedFilters.includes(duration) ? colors.primary : colors.border
                           }}
                           onPress={() => toggleFilter(duration)}
                         >
                           <Text style={{
                             textAlign: 'center',
-                            fontWeight: '600',
+                            fontFamily: Fonts.semiBold,
                             fontSize: 11,
-                            color: selectedFilters.includes(duration) ? 'white' : '#334155'
+                            color: selectedFilters.includes(duration) ? 'white' : colors.text
                           }}>
                             {duration}
                           </Text>
@@ -176,8 +187,8 @@ export default function MoviesScreen() {
                   <View>
                     <Text style={{
                       fontSize: 14,
-                      fontWeight: '500',
-                      color: '#334155',
+                      fontFamily: Fonts.medium,
+                      color: colors.text,
                       marginBottom: 8
                     }}>
                       Genre
@@ -191,14 +202,14 @@ export default function MoviesScreen() {
                             paddingHorizontal: 16,
                             borderRadius: 12,
                             borderWidth: 2,
-                            backgroundColor: selectedFilters.includes(genre) ? '#0ea5e9' : '#f8fafc',
-                            borderColor: selectedFilters.includes(genre) ? '#0ea5e9' : '#e2e8f0'
+                            backgroundColor: selectedFilters.includes(genre) ? colors.primary : colors.background,
+                            borderColor: selectedFilters.includes(genre) ? colors.primary : colors.border
                           }}
                           onPress={() => toggleFilter(genre)}
                         >
                           <Text style={{
-                            fontWeight: '500',
-                            color: selectedFilters.includes(genre) ? 'white' : '#334155'
+                            fontFamily: Fonts.medium,
+                            color: selectedFilters.includes(genre) ? 'white' : colors.text
                           }}>
                             {genre}
                           </Text>

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { Settings, History, ChefHat, ChevronDown, ChevronUp } from 'lucide-react-native';
+import { Settings, History, ChefHat, ChevronDown, ChevronUp, ArrowLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
 import DiceRoller from '@/components/Dice/DiceRoller';
 import { Fonts } from '@/constants/fonts';
@@ -52,21 +52,23 @@ export default function FoodScreen() {
             elevation: 2
           }}>
             <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 12 }}>
-                <View style={{
+              <TouchableOpacity
+                onPress={() => router.back()}
+                style={{
                   width: 40,
                   height: 40,
                   backgroundColor: colors.background,
-                  borderRadius: 16,
+                  borderRadius: 12,
                   alignItems: 'center',
                   justifyContent: 'center'
-                }}>
-                  <ChefHat size={20} color={colors.primary} />
-                </View>
-                <View>
-                  <Text style={{ fontSize: 24, fontFamily: Fonts.bold, color: colors.text }}>Food</Text>
-                  <Text style={{ fontSize: 14, fontFamily: Fonts.regular, color: colors.textSecondary }}>What should I eat?</Text>
-                </View>
+                }}
+              >
+                <ArrowLeft size={18} color={colors.textSecondary} />
+              </TouchableOpacity>
+              
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Text style={{ fontSize: 24, fontFamily: Fonts.bold, color: colors.text }}>Food</Text>
+                <Text style={{ fontSize: 14, fontFamily: Fonts.regular, color: colors.textSecondary }}>What should I eat?</Text>
               </View>
               
               <View style={{ flexDirection: 'row', gap: 8 }}>

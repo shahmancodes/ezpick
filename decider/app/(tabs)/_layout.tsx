@@ -16,25 +16,12 @@ export default function TabLayout() {
         tabBarInactiveTintColor: '#94a3b8',
         headerShown: false,
         tabBarButton: HapticTab,
-        tabBarStyle: {
-          backgroundColor: '#ffffff',
-          borderTopWidth: 1,
-          borderTopColor: '#e2e8f0',
-          paddingTop: 8,
-          paddingBottom: 8,
-          height: 70,
-        },
-        tabBarLabelStyle: {
-          fontSize: 12,
-          fontWeight: '600',
-          marginTop: 4,
-        },
+        tabBarStyle: { display: 'none' }, // This hides the entire tab bar
       }}>
       <Tabs.Screen
         name="index"
         options={{
           title: 'Home',
-          tabBarStyle: { display: 'none' }, // Hide tab bar on homepage
           tabBarIcon: ({ color, focused }) => (
             <Home 
               size={focused ? 26 : 24} 

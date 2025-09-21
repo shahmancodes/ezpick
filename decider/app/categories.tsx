@@ -2,8 +2,9 @@ import React from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { ChefHat, MapPin, Film, Gamepad2, Dice1, FileQuestionMark, Music, Tv } from 'lucide-react-native';
+import { ChefHat, MapPin, Film, Gamepad2, FileQuestionMark, Music, Tv, ArrowLeft } from 'lucide-react-native';
 import { Fonts } from '@/constants/fonts';
+import { useTheme } from '@/contexts/ThemeContext';
 
 interface CategoryCard {
   id: string;
@@ -82,33 +83,58 @@ const categories: CategoryCard[] = [
 ];
 
 export default function CategoriesScreen() {
+  const { colors } = useTheme();
+
   const handleCategoryPress = (route: string) => {
     router.push(route as any);
   };
 
+  const handleGoBack = () => {
+    router.back();
+  };
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#f8fafc' }}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <SafeAreaView style={{ flex: 1 }}>
         <ScrollView style={{ flex: 1 }} showsVerticalScrollIndicator={false}>
           {/* Header */}
           <View style={{ 
             paddingHorizontal: 24, 
             paddingVertical: 20, 
-            backgroundColor: 'white',
-            shadowColor: '#000',
+            backgroundColor: colors.surface,
+            shadowColor: colors.shadow,
             shadowOffset: { width: 0, height: 2 },
             shadowOpacity: 0.06,
             shadowRadius: 8,
             elevation: 2
           }}>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
-              <Text style={{ 
-                fontSize: 24, 
-                fontFamily: Fonts.bold,
-                color: '#0f172a'
-              }}>
-                Choose a Category
-              </Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+              <TouchableOpacity
+                onPress={handleGoBack}
+                style={{
+                  width: 40,
+                  height: 40,
+                  backgroundColor: colors.background,
+                  borderRadius: 12,
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}
+              >
+                <ArrowLeft size={18} color={colors.textSecondary} />
+              </TouchableOpacity>
+              
+              <View style={{ flex: 1, alignItems: 'center' }}>
+                <Text style={{ 
+                  fontSize: 24, 
+                  fontFamily: Fonts.bold,
+                  color: colors.text
+                }}>
+                  Choose a Category
+                </Text>
+              </View>
+              
+              {/* Empty space to balance the back button */}
+              <View style={{ width: 40 }} />
             </View>
           </View>
 
@@ -122,7 +148,7 @@ export default function CategoriesScreen() {
                     key={category.id}
                     onPress={() => handleCategoryPress(category.route)}
                     style={{
-                      backgroundColor: 'white',
+                      backgroundColor: colors.surface,
                       borderRadius: 16,
                       padding: 24,
                       shadowColor: category.color,
@@ -148,7 +174,7 @@ export default function CategoriesScreen() {
                         <Text style={{
                           fontSize: 20,
                           fontFamily: Fonts.semiBold,
-                          color: '#0f172a',
+                          color: colors.text,
                           marginBottom: 4
                         }}>
                           {category.title}
@@ -156,7 +182,7 @@ export default function CategoriesScreen() {
                         <Text style={{
                           fontSize: 14,
                           fontFamily: Fonts.regular,
-                          color: '#64748b'
+                          color: colors.textSecondary
                         }}>
                           {category.subtitle}
                         </Text>

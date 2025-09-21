@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useSharedValue, withTiming, withSequence, withSpring, useAnimatedStyle, withRepeat, interpolate } from 'react-native-reanimated';
 import Animated from 'react-native-reanimated';
 import * as Haptics from 'expo-haptics';
-import { Audio } from 'expo-av';
+import { useAudioPlayer } from 'expo-audio'; // Correct import
 import { Dice1, Dice2, Dice3, Dice4, Dice5, Dice6, Sparkles } from 'lucide-react-native';
 
 interface DiceRollerProps {
@@ -61,14 +61,15 @@ export default function DiceRoller({ options, onResult, disabled = false }: Dice
   const bounce = useSharedValue(0);
   const glow = useSharedValue(0);
 
+  // Create audio player
+  const player = useAudioPlayer();
+
   // Load and play dice roll sound
   const playDiceRollSound = async () => {
     try {
-      const { sound } = await Audio.Sound.createAsync(
-        require('@/assets/sounds/dice-roll.mp3')
-      );
-      await sound.playAsync();
-      setTimeout(() => sound.unloadAsync(), 2000);
+      // Set the audio source and play
+      await player.replace(require('@/assets/sounds/dice-roll.wav'));
+      player.play();
     } catch (error) {
       console.log('Error playing dice roll sound:', error);
     }
